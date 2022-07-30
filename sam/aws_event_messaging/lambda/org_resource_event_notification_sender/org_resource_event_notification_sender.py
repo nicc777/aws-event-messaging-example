@@ -40,12 +40,21 @@ def prepare_human_readable_message(origin_message: str)->str:
     logger.info('aws_source={}'.format(aws_source))
     logger.info('arn={}'.format(arn))
     logger.info('state={}'.format(state))
+    aws_source = aws_source.replace('.', ' ').upper()
     hm = hm.replace('__SOURCE__', aws_source)
-    hm = hm.replace('__ARN__', arn)
-    if aws_source == 'aws.ec2':
+    if 'ec2' in aws_source.lower():
         instance_sate_data = json.loads(state)
-        hm = hm.replace('__EVENT__', 'New Instance State: {}'.format(instance_sate_data['state'].upper()))
+        hm = hm.replace('__EVENT__', 'New State: {}'.format(instance_sate_data['state'].upper()))
+        arn_components = arn.split(':')
+        instance_id = arn_components[5]
+        aws_region = arn_components[3]
+        if len(aws_region) < 2:
+            aws_region = 'unknown or global resource'
+        if '/' in instance_id:
+            instance_id = instance_id.split('/')[-1]
+        hm = hm.replace('__ARN__', 'Instance ID "{}" in AWS Region "{}"'.format(instance_id, aws_region))
     else:
+        hm = hm.replace('__ARN__', arn)
         hm = hm.replace('__EVENT__', 'RAW_DATA: {}'.format(state))
     return hm
 
