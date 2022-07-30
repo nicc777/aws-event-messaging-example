@@ -23,6 +23,18 @@ Resources:
 
   OrgResourceEventsNotificationTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: PaymentsTopic
+      Subscription:
+        - Protocol: lambda
+          Endpoint: !GetAtt EmailNotificationSenderFunction.Arn
+
+  SNSInvokeEmailSenderFunction:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref EmailNotificationSenderFunction
+      Principal: sns.amazonaws.com
 
   # Define the SQS queue
   AwsServiceEventsQueue:
@@ -168,6 +180,22 @@ Resources:
       Environment:
         Variables:
           TOPIC_ARN: !Ref OrgResourceEventsNotificationTopic
+
+  EmailNotificationSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/email_notification_sender/
+      Handler: email_notification_sender.handler
+      Runtime: python3.8
+      Timeout: 30
+      MemorySize: 128
+      Policies:
+        - SESCrudPolicy: 
+            IdentityName: '*' #
+      Environment:
+        Variables:
+          FROM_EMAIL_ADDR: "__NOT_SET__"
+          TO_EMAIL_ADDR: "__NOT_SET__"
 
 Outputs:
 
