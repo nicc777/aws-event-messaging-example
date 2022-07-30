@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Example Template for the aws-event-messaging-example example project
+  
+Resources:
+
+  # Define the SNS topics
+  AwsServiceEventsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Protocol: sqs
+          Endpoint: !GetAtt AwsServiceEventsQueue.Arn
+
+  OrgResourceEventsTopic:
+    Type: AWS::SNS::Topic
+
+  OrgResourceEventsNotification:
+    Type: AWS::SNS::Topic
+
+  # Define the SQS queue
+  AwsServiceEventsQueue:
+    Type: AWS::SQS::Queue
+
+  OrgResourceEventsQueue:
+    Type: AWS::SQS::Queue
+
+  OrgResourceEventsMessagingQueue:
+    Type: AWS::SQS::Queue
+
+  # Define the event rule to filter for events
+  EventRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "EventRule"
+      EventPattern: 
+        source: 
+        - "aws.ec2"
+        detail-type: 
+          - "EC2 Instance State-change Notification"
+        detail: 
+          state: 
+          - "running"
+          - "shutting-down"
+          - "stopped"
+          - "stopping"
+          - "terminated"
+      Targets: 
+        - Arn: !Ref AwsServiceEventsTopic
+          Id: "AwsServiceEventsTopic"
+
+  # Allow EventBridge to invoke SNS
+  EventBridgeToToSnsPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties: 
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action: sns:Publish
+          Resource: !Ref AwsServiceEventsTopic
+      Topics: 
+        - !Ref AwsServiceEventsTopic   
+
+  # AwsServiceEventsQueue SUBSCRIBE to AwsServiceEventsTopic
+  SnsToSqsPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: "Allow SNS publish to SQS"
+          Effect: Allow
+          Principal: 
+            Service: "sns.amazonaws.com"
+          Resource: !GetAtt AwsServiceEventsQueue.Arn
+          Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref AwsServiceEventsTopic
+      Queues:
+      - !Ref AwsServiceEventsQueue
+
+Outputs:
+
+  # SNS Topics 
+  AwsServiceEventsTopicName:
+    Description: AwsServiceEventsTopic name
+    Value: !GetAtt AwsServiceEventsTopic.TopicName
+  AwsServiceEventsTopicArn:
+    Description: AwsServiceEventsTopic ARN
+    Value: !Ref AwsServiceEventsTopic
+
+  OrgResourceEventsTopicName:
+    Description: OrgResourceEventsTopic name
+    Value: !GetAtt OrgResourceEventsTopic.TopicName
+  OrgResourceEventsTopicArn:
+    Description: OrgResourceEventsTopic ARN
+    Value: !Ref OrgResourceEventsTopic
+
+  OrgResourceEventsNotificationName:
+    Description: OrgResourceEventsNotification name
+    Value: !GetAtt OrgResourceEventsNotification.TopicName
+  OrgResourceEventsNotificationArn:
+    Description: OrgResourceEventsNotification ARN
+    Value: !Ref OrgResourceEventsNotification
+
+  # SQS Queues
+  AwsServiceEventsQueueName:
+    Description: AwsServiceEvents name
+    Value: !GetAtt AwsServiceEventsQueue.QueueName
+  AwsServiceEventsQueueArn:
+    Description: AwsServiceEvents ARN
+    Value: !GetAtt AwsServiceEventsQueue.Arn
+  AwsServiceEventsQueueURL:
+    Description: AwsServiceEvents URL
+    Value: !Ref AwsServiceEventsQueue    
+
+  OrgResourceEventsQueueName:
+    Description: OrgResourceEventsQueue name
+    Value: !GetAtt OrgResourceEventsQueue.QueueName
+  OrgResourceEventsQueueArn:
+    Description: OrgResourceEventsQueue ARN
+    Value: !GetAtt OrgResourceEventsQueue.Arn
+  OrgResourceEventsQueueURL:
+    Description: OrgResourceEventsQueue URL
+    Value: !Ref OrgResourceEventsQueue    
+
+  OrgResourceEventsMessagingQueueName:
+    Description: OrgResourceEventsMessagingQueue name
+    Value: !GetAtt OrgResourceEventsMessagingQueue.QueueName
+  OrgResourceEventsMessagingQueueArn:
+    Description: OrgResourceEventsMessagingQueue ARN
+    Value: !GetAtt OrgResourceEventsMessagingQueue.Arn
+  OrgResourceEventsMessagingQueueURL:
+    Description: OrgResourceEventsMessagingQueue URL
+    Value: !Ref OrgResourceEventsMessagingQueue    
