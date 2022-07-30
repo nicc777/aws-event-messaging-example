@@ -1,0 +1,12 @@
+version=0.1
+[default.global.parameters]
+stack_name = "aws-event-messaging-stack"
+
+[default.deploy.parameters]
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-xbh55h0gogqd"
+s3_prefix = "aws-event-messaging-stack"
+region = "eu-central-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+tags = "project=\"aws-event-messaging-stack\" projectStage=\"development\" projectUrl=\"https://github.com/nicc777/aws-event-messaging-example\""
+image_repositories = []
