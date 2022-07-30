@@ -14,15 +14,15 @@ else:
 HUMAN_READABLE_TEMPLATE = 'Infrastructure Source: __SOURCE__\nResource Identifier: __ARN__\nEvent: __EVENT__'
 
 
-def extract_message_from_record(record: dict)->dict:
+def extract_message_from_record(record: dict)->str:
     logger.info('record={}'.format(json.dumps(record, default=str)))
     if 'body' in record:
         body = json.loads(record['body'])
         logger.info('body={}'.format(json.dumps(body, default=str)))
         if 'Message' in body:
-            message = json.loads(body['Message'])
-            logger.info('message={}'.format(json.dumps(message, default=str)))
-            return message
+            message_raw = body['Message']
+            logger.info('message={}'.format(json.dumps(message_raw, default=str)))
+            return message_raw
         else:
             raise Exception('Expected "Message" key')
     else:
