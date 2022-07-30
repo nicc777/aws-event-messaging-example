@@ -30,8 +30,19 @@ def extract_message_from_record(record: dict)->str:
 
 
 def prepare_human_readable_message(origin_message: str)->str:
-    hm = 'Not yet Implemented...'
+    hm = copy.deepcopy(HUMAN_READABLE_TEMPLATE)
     logger.info('origin_message={}'.format(origin_message))
+    aws_source, arn, state = origin_message.split(',', 3)
+    logger.info('aws_source={}'.format(aws_source))
+    logger.info('arn={}'.format(arn))
+    logger.info('state={}'.format(state))
+    hm = hm.replace('__SOURCE__', aws_source)
+    hm = hm.replace('__ARN__', arn)
+    if aws_source == 'aws.ec2':
+        instance_sate_data = json.loads(state)
+        hm = hm.replace('__EVENT__', 'New Instance State: {}'.format(instance_sate_data['state'].upper()))
+    else:
+        hm = hm.replace('__EVENT__', 'RAW_DATA: {}'.format(state))
     return hm
 
 
