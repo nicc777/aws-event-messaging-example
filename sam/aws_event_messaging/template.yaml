@@ -21,7 +21,7 @@ Resources:
       - Protocol: sqs
         Endpoint: !GetAtt OrgResourceEventsMessagingQueue.Arn
 
-  OrgResourceEventsNotification:
+  OrgResourceEventsNotificationTopic:
     Type: AWS::SNS::Topic
 
   # Define the SQS queue
@@ -148,6 +148,27 @@ Resources:
         Variables:
           TOPIC_ARN: !Ref OrgResourceEventsTopic
 
+  OrgResourceEventNotificationSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/org_resource_event_notification_sender/
+      Handler: org_resource_event_notification_sender.handler
+      Runtime: python3.8
+      Policies:
+      - SNSPublishMessagePolicy:
+          TopicName: !GetAtt OrgResourceEventsTopic.TopicName
+      Timeout: 30
+      MemorySize: 128
+      Events:
+        OrgResourceEventsMessagingQueue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt OrgResourceEventsMessagingQueue.Arn
+            BatchSize: 10
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref OrgResourceEventsNotificationTopic
+
 Outputs:
 
   # SNS Topics 
@@ -165,12 +186,12 @@ Outputs:
     Description: OrgResourceEventsTopic ARN
     Value: !Ref OrgResourceEventsTopic
 
-  OrgResourceEventsNotificationName:
-    Description: OrgResourceEventsNotification name
-    Value: !GetAtt OrgResourceEventsNotification.TopicName
-  OrgResourceEventsNotificationArn:
-    Description: OrgResourceEventsNotification ARN
-    Value: !Ref OrgResourceEventsNotification
+  OrgResourceEventsNotificationTopicName:
+    Description: OrgResourceEventsNotificationTopic name
+    Value: !GetAtt OrgResourceEventsNotificationTopic.TopicName
+  OrgResourceEventsNotificationTopicArn:
+    Description: OrgResourceEventsNotificationTopic ARN
+    Value: !Ref OrgResourceEventsNotificationTopic
 
   # SQS Queues
   AwsServiceEventsQueueName:
