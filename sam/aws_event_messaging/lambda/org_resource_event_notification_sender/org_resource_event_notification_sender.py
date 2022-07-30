@@ -42,7 +42,7 @@ def prepare_human_readable_message(origin_message: str)->str:
     logger.info('state={}'.format(state))
     aws_source = aws_source.replace('.', ' ').upper()
     hm = hm.replace('__SOURCE__', aws_source)
-    if 'ec2' in aws_source.lower():
+    if aws_source.lower().endswith('ec2') is True:
         instance_sate_data = json.loads(state)
         hm = hm.replace('__EVENT__', 'New State: {}'.format(instance_sate_data['state'].upper()))
         arn_components = arn.split(':')
@@ -55,7 +55,7 @@ def prepare_human_readable_message(origin_message: str)->str:
         hm = hm.replace('__ARN__', 'Instance ID "{}" in AWS Region "{}"'.format(instance_id, aws_region))
     else:
         hm = hm.replace('__ARN__', arn)
-        hm = hm.replace('__EVENT__', 'RAW_DATA: {}'.format(state))
+        hm = hm.replace('__EVENT__', 'Source cannot yet be converted to a more human readable format. RAW_DATA: {}'.format(state))
     return hm
 
 
