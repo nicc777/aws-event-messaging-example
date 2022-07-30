@@ -32,7 +32,11 @@ def extract_message_from_record(record: dict)->str:
 def prepare_human_readable_message(origin_message: str)->str:
     hm = copy.deepcopy(HUMAN_READABLE_TEMPLATE)
     logger.info('origin_message={}'.format(origin_message))
-    aws_source, arn, state = origin_message.split(',', 3)
+    values = origin_message.split(',', 2)
+    logger.info('values={}'.format(values))
+    aws_source = values[0]
+    arn = values[1]
+    state = values[2]
     logger.info('aws_source={}'.format(aws_source))
     logger.info('arn={}'.format(arn))
     logger.info('state={}'.format(state))
