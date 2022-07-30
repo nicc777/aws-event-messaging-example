@@ -2,7 +2,6 @@ import json
 import boto3
 import os
 import logging
-import copy
 
 logger = logging.getLogger()
 if os.getenv('DEBUG', None) is not None:

@@ -51,36 +51,6 @@ def prepare_human_readable_message(origin_message: str)->str:
 
 
 def handler(event, context):
-    """Lambda function to handle events from AwsServiceEventsQueue and send standardized event messages to OrgResourceEventsTopic
-
-    Example event:
-
-    .. highlight:: json
-    .. code-block:: json
-
-        {
-    "Records": [
-        {
-            "messageId": "oooooooooo",
-            "receiptHandle": "oooooooooo",
-            "body": "{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"oooooooooo\",\n  \"TopicArn\" : \"arn:aws:sns:eu-central-1:0000000000:aws-event-messaging-stack-OrgResourceEventsTopic-oooooooooo\",\n  \"Subject\" : \"AWS Event\",\n  \"Message\" : \"aws.ec2,arn:aws:ec2:eu-central-1:0000000000:instance/i-0b4c854ee43718713,{\\\"instance-id\\\": \\\"i-0b4c854ee43718713\\\", \\\"state\\\": \\\"running\\\"}\",\n  \"Timestamp\" : \"2022-07-30T09:48:08.637Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"oooooooooo\",\n  \"SigningCertURL\" : \"oooooooooo\",\n  \"UnsubscribeURL\" : \"oooooooooo\"\n}",
-            "attributes": {
-                "ApproximateReceiveCount": "1",
-                "SentTimestamp": "1659174488670",
-                "SenderId": "oooooooooo",
-                "ApproximateFirstReceiveTimestamp": "1659180249279"
-            },
-            "messageAttributes": {},
-            "md5OfBody": "oooooooooo",
-            "eventSource": "aws:sqs",
-            "eventSourceARN": "arn:aws:sqs:eu-central-1:0000000000:aws-event-messaging-stack-OrgResourceEventsMessagingQueue-oooooooooo",
-            "awsRegion": "eu-central-1"
-        }
-    ]
-}
-
-    """
-
     logger.info('event={}'.format(json.dumps(event, default=str)))
     client = boto3.client('sns')
     target_sns_topic = os.getenv('TOPIC_ARN', None)
