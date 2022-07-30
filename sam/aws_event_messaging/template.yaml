@@ -88,7 +88,7 @@ Resources:
     Properties:
       CodeUri: lambda/aws_service_event_handler/
       Handler: aws_service_event_handler.handler
-      Runtime: python3.9
+      Runtime: python3.8
       Policies:
       - SNSPublishMessagePolicy:
           TopicName: !GetAtt OrgResourceEventsTopic.TopicName
