@@ -82,6 +82,28 @@ Resources:
       Queues:
       - !Ref AwsServiceEventsQueue
 
+  # Lambda Functions
+  AwsServiceEventHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/aws_service_event_handler/
+      Handler: aws_service_event_handler.handler
+      Runtime: python3.9
+      Policies:
+      - SNSPublishMessagePolicy:
+          TopicName: !GetAtt OrgResourceEventsTopic.TopicName
+      Timeout: 30
+      MemorySize: 128
+      Events:
+        AwsServiceEventsQueue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt AwsServiceEventsQueue.Arn
+            BatchSize: 10
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref OrgResourceEventsTopic
+
 Outputs:
 
   # SNS Topics 
