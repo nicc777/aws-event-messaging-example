@@ -82,6 +82,44 @@ Resources:
       Queues:
       - !Ref AwsServiceEventsQueue
 
+  # OrgResourceEventsQueue SUBSCRIBE to OrgResourceEventsTopic
+  SnsToSqsPolicy2:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: "Allow OrgResourceEventsTopic publish to OrgResourceEventsQueue"
+          Effect: Allow
+          Principal: 
+            Service: "sns.amazonaws.com"
+          Resource: !GetAtt OrgResourceEventsQueue.Arn
+          Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref OrgResourceEventsTopic
+      Queues:
+      - !Ref OrgResourceEventsQueue
+
+  # OrgResourceEventsQueue SUBSCRIBE to OrgResourceEventsTopic
+  SnsToSqsPolicy3:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: "Allow OrgResourceEventsTopic publish to OrgResourceEventsMessagingQueue"
+          Effect: Allow
+          Principal: 
+            Service: "sns.amazonaws.com"
+          Resource: !GetAtt OrgResourceEventsMessagingQueue.Arn
+          Action: SQS:SendMessage
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Ref OrgResourceEventsTopic
+      Queues:
+      - !Ref OrgResourceEventsMessagingQueue
+
   # Lambda Functions
   AwsServiceEventHandlerFunction:
     Type: AWS::Serverless::Function
