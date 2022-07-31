@@ -13,6 +13,8 @@ Specifically, this example will notify on EC2 state change events. You can test 
 
 # Design
 
+I added [a blog post](https://www.nicc777.com/blog/2022/2022-07-31.html) discussing this example in more detail.
+
 ![design](images/blog_post_diagrams-example_ecenario.drawio.png)
 
 # Technology Stack
